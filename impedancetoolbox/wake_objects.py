@@ -112,8 +112,8 @@ class ResistiveWallWakeFunction(Wake):
         
         self._wakeZ = self.longitudinal_RW_wake(time,rho,beff,length)
         # TODO benchmark transverse
-        #self._wakeDx = self.transverse_RW_wake(time,rho,beff,length)
-        #self._wakeDy = self.transverse_RW_wake(time,rho,beff,length)
+        self._wakeDx = self.transverse_RW_wake(time,rho,beff,length)
+        self._wakeDy = self.transverse_RW_wake(time,rho,beff,length)
         
     # --- Properties ---    
     
