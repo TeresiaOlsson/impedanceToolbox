@@ -5,9 +5,9 @@ Created on Wed Jun 21 13:21:26 2023
 @author: teresia
 """
 import numpy as np
-from .constants import *
+from .constants import SPEED_OF_LIGHT
 
-def generate_sampling_points(wake_range,n_points):
+def generate_time_points(wake_range,n_points):
     
     # TODO: check so input is integer
     
@@ -29,15 +29,31 @@ def generate_sampling_points(wake_range,n_points):
 
 # TODO: add sampling for Elegant'
 
-def convolute(sampling_points,wake,bunch_length):
+# def bunch_profile(time,bunch_length):
     
-    s = sampling_points*SPEED_OF_LIGHT
+#     bunch_duration = bunch_length/SPEED_OF_LIGHT
+    
+#     bunch_profile = 1/(np.sqrt(2*np.pi)*bunch_duration)*np.exp(-time**2/(2*bunch_duration**2))
+    
+#     return bunch_profile
+
+    
+def convolute(time,wake,bunch_length):
+    
+    s = time*SPEED_OF_LIGHT
     
     bunch_profile = 1/(np.sqrt(2*np.pi)*bunch_length)*np.exp(-s**2/(2*bunch_length**2))
     
     delta = s[1]-s[0];
     
     return delta*np.convolve(wake, bunch_profile,"same")
+
+
+# def raw_moment(x, counts, order):
+              
+#     return np.sum(x**order*counts) / np.sum(counts)
+  
+
 
     
 
