@@ -7,7 +7,11 @@ Created on Mon Apr  3 11:59:12 2023
 
 import numpy as np
 from scipy.integrate import quad_vec
-from . import constants
+from .constants import SPEED_OF_LIGHT, IMPEDANCE_FREE_SPACE
+from .utils import raw_moment
+
+#from . import constants
+#from . import sampling
 
 class Wake(object):
        
@@ -44,6 +48,10 @@ class Wake(object):
     def time(self):
         return self._time
     
+    @time.setter
+    def time(self,value):
+        self._time = value    
+    
     @property
     def wakeZ(self):
         return self._wakeZ
@@ -54,19 +62,35 @@ class Wake(object):
     
     @property
     def wakeDx(self):
-        return self._wakeDx       
+        return self._wakeDx 
+
+    @wakeDx.setter
+    def wakeDx(self,value):
+        self._wakeDx = value        
 
     @property
     def wakeDy(self):
         return self._wakeDy
     
+    @wakeDy.setter
+    def wakeDy(self,value):
+        self._wakeDy = value        
+    
     @property
     def wakeQx(self):
         return self._wakeQx
     
+    @wakeQx.setter
+    def wakeQx(self,value):
+        self._wakeQx = value    
+    
     @property
     def wakeQy(self):
         return self._wakeQy
+    
+    @wakeQy.setter
+    def wakeQy(self,value):
+        self._wakeQy = value    
     
     @property
     def factorZ(self):
@@ -88,32 +112,43 @@ class Wake(object):
         
         self._wakeZ = np.add(self._wakeZ,new_wake.wakeZ)
         
+
     def save_AT_file(self,filename):
         
-        s = self._time.reshape((-1,1))*constants.SPEED_OF_LIGHT
+        s = self._time.reshape((-1,1))*SPEED_OF_LIGHT
         
         wake_matrix = np.concatenate((s,self._wakeZ.reshape((-1,1)),self._wakeDx.reshape((-1,1)),self._wakeDx.reshape((-1,1)),self._wakeQx.reshape((-1,1)),self._wakeQy.reshape((-1,1))),axis=1)
         
         np.savetxt(filename,wake_matrix,header = "s [m] Long. wake [V/C] Hor. dipole wake [V/m/C] Ver. dipole wake [V/m/C] Hor. quadrupole wake [V/m^2/C] Ver. dipole wake [V/m^2/C]")
-           
+        
+
+    # def calculate_moments(self, nOrders):   
+        
+    #     momentsZ = np.zeros(nOrders+1)
+    #     momentsDx = np.zeros(nOrders+1)
+    #     momentsDy = np.zeros(nOrders+1)
+    #     # TODO: add transverse quadrupole
+        
+    #     for i in range(nOrders+1):            
+    #         momentsZ[i] = raw_moment(self.time,self.wakeZ,i)
+    #         #momentsDx = raw_moment(self.time,self.wakeDx)
+    #         #momentsDy = raw_moment(self.time,self.wakeDy)     
+            
+    #     return (momentsZ,momentsDx,momentsDy)
+        
+
 class ResistiveWallWakeFunction(Wake):
-    
-    speed_of_light = constants.SPEED_OF_LIGHT;
-    impedance_free_space = constants.IMPEDANCE_FREE_SPACE
-    
+       
     # --- Constructor ---
     def __init__(self,time,rho,beff,length):
         self._time = time
         self._rho = rho
         self._beff = beff
         self._length = length
-        
-        #s = self.speed_of_light*time
-        
+                
         self._wakeZ = self.longitudinal_RW_wake(time,rho,beff,length)
-        # TODO benchmark transverse
-        self._wakeDx = self.transverse_RW_wake(time,rho,beff,length)
-        self._wakeDy = self.transverse_RW_wake(time,rho,beff,length)
+        #self._wakeDx = self.transverse_RW_wake(time,rho,beff,length)
+        #self._wakeDy = self.transverse_RW_wake(time,rho,beff,length)
         
     # --- Properties ---    
     
@@ -139,21 +174,22 @@ class ResistiveWallWakeFunction(Wake):
         # Based on equation 22 in Skripka et al. 'Simultaneous computation of intrabunch and interbunch collective beam motions in storage rings'
         # The equation gives the wake function per length unit
         
-        s0 = (2*beff**2*rho/self.impedance_free_space)**(1./3)
-        tau0 = s0/self.speed_of_light
+        s0 = (2*beff**2*rho/IMPEDANCE_FREE_SPACE)**(1./3)
+        tau0 = s0/SPEED_OF_LIGHT
         
         wake = np.zeros(len(time))
         
-        # Find index of time >= 0
-        index = np.where(time >= 0)
+        # Find index of time >= 0 (including marging for rounding error)
+        #index = np.where(time >= 0)
+        index = np.where(time > -1e-20) 
         
         tau = time[index]
         
-        f = lambda x : x**2*np.exp(-x**2*tau/tau0)/(x**6+8);
+        f = lambda x : x**2*np.exp(-x**2*tau/tau0)/(x**6+8)
         
         y, err = quad_vec(f,0,np.inf)
         
-        wake[index] = 4*self.impedance_free_space*self.speed_of_light/(np.pi*beff**2)*(np.exp(-tau/tau0)/3 * np.cos(np.sqrt(3)*tau/tau0) - np.sqrt(2)/np.pi * y)*length
+        wake[index] = 4*IMPEDANCE_FREE_SPACE*SPEED_OF_LIGHT/(np.pi*beff**2)*(np.exp(-tau/tau0)/3 * np.cos(np.sqrt(3)*tau/tau0) - np.sqrt(2)/np.pi * y)*length
              
         return wake
     
@@ -162,13 +198,14 @@ class ResistiveWallWakeFunction(Wake):
     # Multiplied with s0 since missing in formula
     # The equation gives the wake function per length unit
 
-        s0 = (2*beff**2*rho/self.impedance_free_space)**(1/3);
-        tau0 = s0/self.speed_of_light;
+        s0 = (2*beff**2*rho/IMPEDANCE_FREE_SPACE)**(1/3)
+        tau0 = s0/SPEED_OF_LIGHT
         
         wake = np.zeros(len(time))
         
         # Find index of time >= 0
-        index = np.where(time >= 0)
+        #index = np.where(time >= 0)
+        index = np.where(time > -1e-20) 
         
         tau = time[index]
         
@@ -177,7 +214,7 @@ class ResistiveWallWakeFunction(Wake):
         y, err = quad_vec(f,0,np.inf)
         
         # Negative sign on wake necessary to get detuning in tracking in AT
-        wake[index] = -s0*8*self.impedance_free_space*self.speed_of_light/(np.pi*beff**4)*(1/12 * (-np.exp(-tau/tau0)*np.cos(np.sqrt(3)*tau/tau0) + np.sqrt(3)*np.exp(-tau/tau0)*np.sin(np.sqrt(3)*tau/tau0)) - np.sqrt(2)/np.pi*y)*length
+        wake[index] = -s0*8*IMPEDANCE_FREE_SPACE*SPEED_OF_LIGHT/(np.pi*beff**4)*(1/12 * (-np.exp(-tau/tau0)*np.cos(np.sqrt(3)*tau/tau0) + np.sqrt(3)*np.exp(-tau/tau0)*np.sin(np.sqrt(3)*tau/tau0)) - np.sqrt(2)/np.pi*y)*length
         
         return wake
     
