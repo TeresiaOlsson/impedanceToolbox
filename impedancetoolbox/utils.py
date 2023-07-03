@@ -29,31 +29,31 @@ def generate_time_points(wake_range,n_points):
 
 # TODO: add sampling for Elegant'
 
-# def bunch_profile(time,bunch_length):
+def bunch_profile(time,bunch_length):
     
-#     bunch_duration = bunch_length/SPEED_OF_LIGHT
+    bunch_duration = bunch_length/SPEED_OF_LIGHT
     
-#     bunch_profile = 1/(np.sqrt(2*np.pi)*bunch_duration)*np.exp(-time**2/(2*bunch_duration**2))
+    bunch_profile = 1/(np.sqrt(2*np.pi)*bunch_duration)*np.exp(-time**2/(2*bunch_duration**2))
     
-#     return bunch_profile
-    
-# def convolute(time,wake,bunch_length):
-    
-#     profile = bunch_profile(time,bunch_length)
-#     delta = time[1]-time[0]
-    
-#     return delta*np.convolve(wake, profile,"same")   
-        
+    return bunch_profile
     
 def convolute(time,wake,bunch_length):
     
-    s = time*SPEED_OF_LIGHT
+    profile = bunch_profile(time,bunch_length)
+    delta = time[1]-time[0]
     
-    bunch_profile = 1/(np.sqrt(2*np.pi)*bunch_length)*np.exp(-s**2/(2*bunch_length**2))
+    return delta*np.convolve(wake, profile,"same")   
+        
     
-    delta = s[1]-s[0];
+# def convolute(time,wake,bunch_length):
     
-    return delta*np.convolve(wake, bunch_profile,"same")    
+#     s = time*SPEED_OF_LIGHT
+    
+#     bunch_profile = 1/(np.sqrt(2*np.pi)*bunch_length)*np.exp(-s**2/(2*bunch_length**2))
+    
+#     delta = s[1]-s[0];
+    
+#     return delta*np.convolve(wake, bunch_profile,"same")    
     
 
 # def convolute_moments(wake_moments,bunch_moments,nOrders):
