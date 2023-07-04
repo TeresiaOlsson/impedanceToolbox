@@ -8,7 +8,7 @@ Created on Mon Apr  3 11:59:12 2023
 import numpy as np
 from scipy.integrate import quad_vec
 from .constants import SPEED_OF_LIGHT, IMPEDANCE_FREE_SPACE
-from .utils import raw_moment
+#from .utils import raw_moment
 
 #from . import constants
 #from . import sampling
@@ -120,22 +120,7 @@ class Wake(object):
         wake_matrix = np.concatenate((s,self._wakeZ.reshape((-1,1)),self._wakeDx.reshape((-1,1)),self._wakeDx.reshape((-1,1)),self._wakeQx.reshape((-1,1)),self._wakeQy.reshape((-1,1))),axis=1)
         
         np.savetxt(filename,wake_matrix,header = "s [m] Long. wake [V/C] Hor. dipole wake [V/m/C] Ver. dipole wake [V/m/C] Hor. quadrupole wake [V/m^2/C] Ver. dipole wake [V/m^2/C]")
-        
-
-    # def calculate_moments(self, nOrders):   
-        
-    #     momentsZ = np.zeros(nOrders+1)
-    #     momentsDx = np.zeros(nOrders+1)
-    #     momentsDy = np.zeros(nOrders+1)
-    #     # TODO: add transverse quadrupole
-        
-    #     for i in range(nOrders+1):            
-    #         momentsZ[i] = raw_moment(self.time,self.wakeZ,i)
-    #         #momentsDx = raw_moment(self.time,self.wakeDx)
-    #         #momentsDy = raw_moment(self.time,self.wakeDy)     
-            
-    #     return (momentsZ,momentsDx,momentsDy)
-        
+              
 
 class ResistiveWallWakeFunction(Wake):
        

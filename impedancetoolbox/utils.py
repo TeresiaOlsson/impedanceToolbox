@@ -43,55 +43,7 @@ def convolute(time,wake,bunch_length):
     delta = time[1]-time[0]
     
     return delta*np.convolve(wake, profile,"same")   
-        
-    
-# def convolute(time,wake,bunch_length):
-    
-#     s = time*SPEED_OF_LIGHT
-    
-#     bunch_profile = 1/(np.sqrt(2*np.pi)*bunch_length)*np.exp(-s**2/(2*bunch_length**2))
-    
-#     delta = s[1]-s[0];
-    
-#     return delta*np.convolve(wake, bunch_profile,"same")    
-    
 
-# def convolute_moments(wake_moments,bunch_moments,nOrders):
-    
-#     momentsZ = np.zeros(nOrders+1)
-#     momentsDx = np.zeros(nOrders+1)
-#     momentsDy = np.zeros(nOrders+1)
-    
-#     for j in range(nOrders+1):     
-        
-#         n = j
-#         print("j :" + str(j))
-        
-#         for i in range(n+1):
-#             print("i: " + str(i))
-#             momentsZ[j] += binom(n,i)*wake_moments[0][i]*bunch_moments[n-i]
-#             print(binom(n,i)*wake_moments[0][i]*bunch_moments[n-i])
-            
-#     return (momentsZ,momentsDx,momentsDy)
-        
-        
-        
-# def raw_moment(x, counts, order):
-              
-#     return np.sum(x**order*counts) / np.sum(counts)
-
-
-# def calculate_bunch_moments(time,bunch_length,nOrders):
-    
-#     profile = bunch_profile(time,bunch_length)
-    
-#     moments = np.zeros(nOrders+1)
-    
-#     for i in range(nOrders+1): 
-#         moments[i] = raw_moment(time,profile,i)
-        
-#     return moments
-     
 
 
 

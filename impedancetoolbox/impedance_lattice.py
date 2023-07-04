@@ -47,138 +47,48 @@ class ImpedanceLattice(object):
                 
         if source == Source.ANALYTIC:
             
-           # Necessary to use even number of sampling points for the convolution to work correctly 
-           if (convolution_bunch_length > 0):
-               initial_time_points = time_points
-               time_points = np.linspace(np.min(time_points),np.max(time_points),len(time_points)+1)    
+        # Necessary to use even number of sampling points for the convolution to work correctly 
+            if (convolution_bunch_length > 0):
+                initial_time_points = time_points
+                time_points = np.linspace(np.min(time_points),np.max(time_points),len(time_points)+1)    
                
                
-        # Generate analytic resistive-wall
+            # Generate analytic resistive-wall
         
-        lumped_wake = Wake(time_points,None,None)
+            lumped_wake = Wake(time_points,None,None)
         
-        for element in self._lattice:
-            
-            rho = element.material
-            beff = element.RW_radius
-            length = element.length
-                      
-            lumped_wake.add(ResistiveWallWakeFunction(time_points,rho,beff,length))
-            
-            # TODO: add transverse 
-            
-            
-        if (convolution_bunch_length > 0):
-            
-            # Do convolution
-            wakeZ_conv = convolute(time_points,lumped_wake.wakeZ,convolution_bunch_length)
-            wakeDx_conv = convolute(time_points,lumped_wake.wakeDx,convolution_bunch_length)
-            wakeDy_conv = convolute(time_points,lumped_wake.wakeDy,convolution_bunch_length)
-            wakeQx_conv = convolute(time_points,lumped_wake.wakeQx,convolution_bunch_length)
-            wakeQy_conv = convolute(time_points,lumped_wake.wakeQy,convolution_bunch_length)
-
-            # TODO: Add transverse
-
-            # Change the sampling points back and change the wake
-            lumped_wake.time = initial_time_points
-            lumped_wake.wakeZ = np.interp(initial_time_points,time_points,wakeZ_conv)
-            lumped_wake.wakeDx = np.interp(initial_time_points,time_points,wakeDx_conv)
-            lumped_wake.wakeDx = np.interp(initial_time_points,time_points,wakeDy_conv)
-            lumped_wake.wakeQx = np.interp(initial_time_points,time_points,wakeQx_conv)
-            lumped_wake.wakeQy = np.interp(initial_time_points,time_points,wakeQy_conv)
-                        
+            for element in self._lattice:
+                
+                rho = element.material
+                beff = element.RW_radius
+                length = element.length
+                          
+                lumped_wake.add(ResistiveWallWakeFunction(time_points,rho,beff,length))
+                
+                # TODO: add transverse 
+                
+            if (convolution_bunch_length > 0):
+                
+                # Do convolution
+                wakeZ_conv = convolute(time_points,lumped_wake.wakeZ,convolution_bunch_length)
+                wakeDx_conv = convolute(time_points,lumped_wake.wakeDx,convolution_bunch_length)
+                wakeDy_conv = convolute(time_points,lumped_wake.wakeDy,convolution_bunch_length)
+                wakeQx_conv = convolute(time_points,lumped_wake.wakeQx,convolution_bunch_length)
+                wakeQy_conv = convolute(time_points,lumped_wake.wakeQy,convolution_bunch_length)
+    
+                # TODO: Add transverse
+    
+                # Change the sampling points back and change the wake
+                lumped_wake.time = initial_time_points
+                lumped_wake.wakeZ = np.interp(initial_time_points,time_points,wakeZ_conv)
+                lumped_wake.wakeDx = np.interp(initial_time_points,time_points,wakeDx_conv)
+                lumped_wake.wakeDx = np.interp(initial_time_points,time_points,wakeDy_conv)
+                lumped_wake.wakeQx = np.interp(initial_time_points,time_points,wakeQx_conv)
+                lumped_wake.wakeQy = np.interp(initial_time_points,time_points,wakeQy_conv)
+                            
             
         return lumped_wake
         
-                
-    # def generate_resistive_wall_wake(self,source,sampling_points,beta_functions,convolution_bunch_length):
-        
-    #     lumped_wake = Wake(sampling_points,None,None)
-        
-    #     # TODO add check of source
-    
-    #     for element in self._lattice:
-            
-    #         rho = element.material
-    #         beff = element.RW_radius
-    #         length = element.length
-                      
-    #         lumped_wake.add(ResistiveWallWakeFunction(sampling_points,rho,beff,length))
-            
-            
-    #     if (convolution_bunch_length > 0):
-        
-    #         # It is necessary to use an even number of sampling points for the convolution to work correctly
-    #         new_sampling_points = np.linspace(np.min(sampling_points),np.max(sampling_points),len(sampling_points)+1)
-            
-    #         wakeZ_conv = convolute(new_sampling_points,lumped_wake.wakeZ,convolution_bunch_length)
-            
-    #         # Change the number of sampling points back
-            
-    #         lumped_wake.wakeZ = np.interp(sampling_points,new_sampling_points,wakeZ_conv)
-            
-    #     return lumped_wake
-
-        # new: wrong
-    # def generate_resistive_wall_wake(self,source,time_points,beta_functions,convolution_bunch_length):
-        
-    #     inital_time_points = time_points
-        
-    #     if (convolution_bunch_length > 0):
-            
-    #         # It is necessary to use an even number of sampling points for the convolution to work correctly
-    #         time_points = np.linspace(np.min(inital_time_points),np.max(inital_time_points),len(inital_time_points)+1)
-    
-    #     lumped_wake = Wake(time_points,None,None)
-        
-    #     # TODO: add different sources
-               
-    #     for element in self._lattice:
-            
-    #         rho = element.material
-    #         beff = element.RW_radius
-    #         length = element.length
-                      
-    #         lumped_wake.add(ResistiveWallWakeFunction(time_points,rho,beff,length))
-            
-              
-    #     if (convolution_bunch_length > 0):
-                    
-    #         wakeZ_conv = convolute(time_points,lumped_wake.wakeZ,convolution_bunch_length)
-            
-    #         # Change the number of sampling points back
-    #         lumped_wake.time = inital_time_points           
-    #         lumped_wake.wakeZ = np.interp(inital_time_points,time_points,wakeZ_conv)
-            
-    #     return lumped_wake
-            
-            
-        
-            
-            
-            
-            
-        
-        # Go through list of impedance elements and generate wake
-        
-    
-                
-    # Method to print out summary of information in lattice
-    
-    # Method to open and close IDs
-    # Method to set specific ID gap
-    # Method to switch NEG model
-    
-    # Separate file for definition of paths - naming convention
-    
-    # Method to generate resistive wall file?
-    # Method to generate geometric file?
-    
-    # Definition of conductivity for materials
-    
-    
-
-    
 class ImpedanceElement(object):
     
     # --- Constructor ---
